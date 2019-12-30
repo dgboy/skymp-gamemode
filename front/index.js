@@ -25,7 +25,7 @@ setTimeout(() => {
   });
 
   let hideAuth = () => {
-    let ids = ['id_name', 'id_pass', 'id_login', 'id_register'];
+    let ids = ['id_myactor', 'id_name', 'id_pass', 'id_email', "id_login", 'id_register'];
     ids.forEach(id => document.getElementById(id).style.visibility = 'hidden');
   }
 
@@ -44,9 +44,11 @@ setTimeout(() => {
   onRegister = () => {
     let name = document.getElementById('id_name').value;
     let pass = document.getElementById('id_pass').value;
+    let email = document.getElementById('id_email').value;
+
     request({
       route: 'auth/register',
-      body: { name, pass }
+      body: { name, pass, email }
     }).then(() => {
       console.log('registered successfully');
       hideAuth();
