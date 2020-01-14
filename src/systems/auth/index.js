@@ -4,12 +4,14 @@ module.exports = (svr, router) => {
   let auth = router.route('auth');
 
   auth.post('login', async ctx => {
-    let hashedPass = hasher.generate(ctx.body.pass);
+    let ac = await svr.findActor({ 'storage.name': ctx.body.name });
 
-    let ac = await svr.findActor({ 'storage.password': hashedPass, 'storage.name': ctx.body.name });
     if (!ac) {
       return ctx.setError('Not found');
+    } else if (!hasher.verify(ctx.body.password, ac.storage.name)) {
+      return ctx.setError('Invalid password!');
     }
+
     await ctx.from.setActor(ac);
     await ac.setEnabled(true).setName(ctx.body.name);
   });
@@ -29,12 +31,18 @@ module.exports = (svr, router) => {
         .setEnabled(true)
         .setStorage({ password: hashedPass, name: ctx.body.name, email: hashedEmail })
         .setName(ctx.body.name)
-        .setRaceMenuOpen(true)
+        .setRaceMenuOpen(true);
 
       await ctx.from.setActor(ac);
     } else {
       console.log("Invalid auth!");
     }
+  });
+
+  auth.post('restore', async ctx => {
+    let hashedPass = hasher.generate(ctx.body.pass);
+
+    let ac = await svr.findActor({ 'storage.password': hashedPass, 'storage.name': ctx.body.name });
   });
 
   auth.get('actor', async ctx => {
